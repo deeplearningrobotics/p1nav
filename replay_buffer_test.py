@@ -1,12 +1,12 @@
 import unittest
-import ReplayBuffer
+import replay_buffer
 import random
 
 class ReplayBufferTest(unittest.TestCase):
     def test_sample(self):
         for i in random.sample(range(1, 100), 20):
 
-            buffer = ReplayBuffer.ReplayBuffer(i)
+            buffer = replay_buffer.ReplayBuffer(i)
             data1 = [self.get_rand_tuple() for k in range(i*2)]
 
 
