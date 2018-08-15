@@ -24,6 +24,9 @@ class Runner:
 
         self.steps = 1000
         self.discount = 1
+
+        self.optimizer = torch.optim.Adam(self.agent.net.parameters(), lr=1e-2)
+
     def run(self):
 
         while True:
@@ -59,24 +62,28 @@ class Runner:
         samples = self.buffer.sample(256)
         for sample in samples:
             obs, action, reward, next_obs, next_action = sample
-            #print(reward)
-            y = reward + self.discount*self.agent.act(next_obs)
-            y = torch.from_numpy(y).float()
+            # #print(reward)
+            # y = reward + self.discount*self.agent.act(next_obs)
+            # y = torch.from_numpy(y).float()
+            #
+            # obs = torch.from_numpy(obs).float()
+            # qjj = self.agent.Q(obs, action)
 
-            obs = torch.from_numpy(obs).float()
-            qjj = self.agent.Q(obs, action)
+            Q_targets_next = self.agent.net(next_obs).detach().max(1)[0].unsqueeze(1)
+            # Compute Q targets for current states
+            Q_targets = rewards + (0.99 * Q_targets_next)
 
-            criterion = nn.MSELoss()
-            optimizer = torch.optim.SGD(self.agent.net.parameters(), lr=1e-2)
-            optimizer.zero_grad()
-            loss = criterion(y, qjj)
+            # Get expected Q values from local model
+            Q_expected = self.qnetwork_local(states).gather(1, actions)
+
+            loss = F.mse_loss(y, qjj)
+            self.optimizer.zero_grad()
             loss.backward()
-            optimizer.step()
+            self.optimizer.step()
 
             sampled_rew += sum(reward)
 
         print("Sampled rew:" + str(sampled_rew))
-        print('Updated weights - ', self.agent.net.fc1.weight)
 
 
 

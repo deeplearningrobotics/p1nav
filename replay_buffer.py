@@ -10,4 +10,7 @@ class ReplayBuffer:
         self.storage.append((state, action, reward, next_state, next_action))
 
     def sample(self, n):
-        return random.sample(self.storage, n)
+        samples = random.sample(self.storage, n)
+
+        states = torch.from_numpy(np)
+
