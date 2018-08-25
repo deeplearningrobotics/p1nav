@@ -10,10 +10,10 @@ import numpy as np
 from collections import deque
 import matplotlib.pyplot as plt
 
-# device = torch.device("cuda:1")
-# print(torch.cuda.is_available())
+device = torch.device("cuda:0")
+print(torch.cuda.is_available())
 
-os.environ["CUDA_VISIBLE_DEVICES"] = "1"
+#os.environ["CUDA_VISIBLE_DEVICES"] = "1"
 
 env = UnityEnvironment(file_name="Banana_Linux/Banana.x86_64", no_graphics=True)
 brain_name = env.brain_names[0]
