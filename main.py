@@ -9,6 +9,7 @@ import torch
 import numpy as np
 from collections import deque
 import matplotlib.pyplot as plt
+from tensorboardX import SummaryWriter
 
 device = torch.device("cuda:0")
 print(torch.cuda.is_available())
@@ -69,54 +70,3 @@ def dqn(n_episodes=2000, max_t=1000, eps_start=1.0, eps_end=0.01, eps_decay=0.99
 
 
 scores = dqn()
-#
-# # plot the scores
-# fig = plt.figure()
-# ax = fig.add_subplot(111)
-# plt.plot(np.arange(len(scores)), scores)
-# plt.ylabel('Score')
-# plt.xlabel('Episode #')
-# plt.show()
-
-# runner = Runner(env)
-# runner.run()
-#
-# env.close()
-#
-# # get the default brain# get t
-# brain_name = env.brain_names[0]
-# brain = env.brains[brain_name]
-#
-# # reset the environment
-# env_info = env.reset(train_mode=True)[brain_name]
-#
-# # number of agents in the environment
-# print('Number of agents:', len(env_info.agents))
-#
-# # number of actions
-# action_size = brain.vector_action_space_size
-# print('Number of actions:', action_size)
-#
-# # examine the state space
-# state = env_info.vector_observations[0]
-# print('States look like:', state)
-# state_size = len(state)
-# print('States have length:', state_size)
-#
-#
-# env_info = env.reset(train_mode=False)[brain_name]  # reset the environment
-# state = env_info.vector_observations[0]  # get the current state
-# score = 0  # initialize the score
-# while True:
-#     print("Loop")
-#     action = np.random.randint(action_size)  # select an action
-#     env_info = env.step(action)[brain_name]  # send the action to the environment
-#     next_state = env_info.vector_observations[0]  # get the next state
-#     reward = env_info.rewards[0]  # get the reward
-#     done = env_info.local_done[0]  # see if episode has finished
-#     score += reward  # update the score
-#     state = next_state  # roll over the state to next time step
-#     if done:  # exit loop if episode finished
-#         env.reset(train_mode=False)[brain_name]
-#
-# print("Score: {}".format(score))

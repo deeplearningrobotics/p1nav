@@ -17,7 +17,9 @@ The task is episodic, and in order to solve the environment, your agent must get
 
 # Dependencies
 
-`pip3 install pytorch `
+```
+pip3 install pytorch tensorboardX
+```
 
 # Running the Code
 
@@ -25,7 +27,7 @@ The task is episodic, and in order to solve the environment, your agent must get
 https://github.com/deeplearningrobotics/p1nav.git
 git clone 
 cd p1nav
-python 3 main.py
+python3 main.py
 ```
 
 # 
