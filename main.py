@@ -1,10 +1,4 @@
 from unityagents import UnityEnvironment
-import numpy as np
-import os
-
-from runners import Runner
-import torch
-import random
 import torch
 import numpy as np
 from collections import deque
@@ -23,9 +17,9 @@ brain_name = env.brain_names[0]
 from dqn_agent import Agent
 
 agent = Agent(state_size=37, action_size=4, seed=0)
+writer = SummaryWriter()
 
-
-def dqn(n_episodes=2000, max_t=1000, eps_start=1.0, eps_end=0.01, eps_decay=0.995):
+def dqn(n_episodes=2000, max_t=1000, eps_start=1.0, eps_end=0.00, eps_decay=0.995):
     """Deep Q-Learning.
 
     Params
@@ -59,13 +53,11 @@ def dqn(n_episodes=2000, max_t=1000, eps_start=1.0, eps_end=0.01, eps_decay=0.99
         scores.append(score)  # save most recent score
         eps = max(eps_end, eps_decay * eps)  # decrease epsilon
         print('\rEpisode {}\tAverage Score: {:.2f}'.format(i_episode, np.mean(scores_window)), end="")
+        writer.add_scalar('reward', np.mean(scores_window), i_episode)
+        writer.add_scalar('eps', eps, i_episode)
         if i_episode % 100 == 0:
             print('\rEpisode {}\tAverage Score: {:.2f}'.format(i_episode, np.mean(scores_window)))
-        if np.mean(scores_window) >= 200.0:
-            print('\nEnvironment solved in {:d} episodes!\tAverage Score: {:.2f}'.format(i_episode - 100,
-                                                                                         np.mean(scores_window)))
-            torch.save(agent.qnetwork_local.state_dict(), 'checkpoint.pth')
-            break
+            torch.save(agent.qnetwork_local.state_dict(), str(np.mean(scores_window))+'.pth')
     return scores
 
 
