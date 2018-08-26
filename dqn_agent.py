@@ -11,8 +11,8 @@ import torch.optim as optim
 BUFFER_SIZE = int(1e5)  # replay buffer size
 BATCH_SIZE = 1024         # minibatch size
 GAMMA = 0.99            # discount factor
-TAU = 1e-3              # for soft update of target parameters
-LR = 5e-5               # learning rate
+TAU = 1e-1              # for soft update of target parameters
+LR = 2e-5               # learning rate
 UPDATE_EVERY = 4        # how often to update the network
 
 device = torch.device("cuda:0")
@@ -86,8 +86,10 @@ class Agent():
         states, actions, rewards, next_states, dones = experiences
 
         # Get max predicted Q values (for next states) from target model
-        Q_targets_next = self.qnetwork_target(next_states).detach().max(1)[0].unsqueeze(1)
-        # Compute Q targets for current states 
+        best_actions = self.qnetwork_local(next_states).detach().argmax(1)
+        best_actions = best_actions.unsqueeze(-1)
+        Q_targets_next = self.qnetwork_target(next_states).detach().gather(1, best_actions)
+        # Compute Q targets for current states
         Q_targets = rewards + (gamma * Q_targets_next * (1 - dones))
 
         # Get expected Q values from local model
