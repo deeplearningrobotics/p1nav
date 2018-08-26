@@ -8,6 +8,8 @@ here https://arxiv.org/pdf/1509.06461.pdf (3).
 
 DDQN was evaluated but resulted in slighly decreased reward.
 
+I am using the code from the Udacity Reinforcement Learning Taxi project.
+
 ### Hyperparameters
 
 Replay buffer size: 10000
