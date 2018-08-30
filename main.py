@@ -60,19 +60,5 @@ def dqn(n_episodes=2000, max_t=1000, eps_start=1.0, eps_end=0.00, eps_decay=0.99
             torch.save(agent.qnetwork_local.state_dict(), str(np.mean(scores_window))+'.pth')
     return scores
 
-if __name__ == '__main__':
-    args = parser.parse_args()
 
-    torch.manual_seed(args.seed)
-
-    model = Net()
-    model.share_memory() # gradients are allocated lazily, so they are not shared here
-
-    processes = []
-    for rank in range(args.num_processes):
-        p = mp.Process(target=train, args=(rank, args, model))
-        p.start()
-        processes.append(p)
-    for p in processes:
-        p.join()
 scores = dqn()
