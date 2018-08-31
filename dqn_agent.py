@@ -9,7 +9,7 @@ import torch
 import torch.nn.functional as F
 import torch.optim as optim
 
-BUFFER_SIZE = int(1e5)  # replay buffer size
+BUFFER_SIZE = int(1e4)  # replay buffer size
 BATCH_SIZE = 4         # minibatch size
 GAMMA = 0.99            # discount factor
 TAU = 1e-3              # for soft update of target parameters
@@ -92,6 +92,8 @@ class Agent():
         weights = weights/max_weight
         weights = weights.unsqueeze(-1)
 
+        #print(weights)
+
         # Get max predicted Q values (for next states) from target model
         best_actions = self.qnetwork_local(next_states).detach().argmax(1)
         best_actions = best_actions.unsqueeze(-1)
@@ -169,10 +171,11 @@ class ReplayBuffer:
         """Randomly sample a batch of experiences from memory."""
         alpha = 0.6
         prio_alpha = np.power(self.priorities, alpha)
-        prob = np.asarray(self.priorities)/np.sum(self.priorities)
+        prob = np.asarray(prio_alpha)/np.sum(prio_alpha)
         indices = np.random.choice(range(0, len(self.priorities)), size=self.batch_size, p=prob)
 
         assert(len(self.priorities) == len(self.memory))
+        assert(len(indices) == self.batch_size)
         experiences = itemgetter(*indices)(self.memory)
 
         states = torch.from_numpy(np.vstack([e.state for e in experiences if e is not None])).float().to(device)
