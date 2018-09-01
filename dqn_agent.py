@@ -92,6 +92,7 @@ class Agent():
         weights = weights/max_weight
         weights = weights.unsqueeze(-1).detach()
 
+        #print(weights)
 
         # Get max predicted Q values (for next states) from target model
         Q_targets_next = self.qnetwork_target(next_states).detach().max(1)[0].unsqueeze(1)
@@ -102,10 +103,11 @@ class Agent():
         Q_expected = self.qnetwork_local(states).gather(1, actions)
 
         updated_priorities = torch.abs(Q_targets-Q_expected.detach())
-        self.memory.update_priorities(indices, updated_priorities)
+        #self.memory.update_priorities(indices, updated_priorities)
 
         # Compute loss
-        loss = F.mse_loss(weights*Q_expected, weights*Q_targets)
+        #loss = F.mse_loss(weights*Q_expected, weights*Q_targets)
+        loss = F.mse_loss(Q_expected, Q_targets)
 
         # Minimize the loss
         self.optimizer.zero_grad()
