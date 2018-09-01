@@ -5,13 +5,15 @@ from collections import deque
 import matplotlib.pyplot as plt
 from tensorboardX import SummaryWriter
 import os
+import random
 
 device = torch.device("cuda:0")
 print(torch.cuda.is_available())
 
 #os.environ["CUDA_VISIBLE_DEVICES"] = "1"
 
-env = UnityEnvironment(file_name="Banana_Linux/Banana.x86_64", no_graphics=True)
+port = random.randint(5000, 7000)
+env = UnityEnvironment(file_name="Banana_Linux/Banana.x86_64", no_graphics=True, base_port=port)
 brain_name = env.brain_names[0]
 
 
@@ -20,7 +22,7 @@ from dqn_agent import Agent
 agent = Agent(state_size=37, action_size=4, seed=0)
 writer = SummaryWriter()
 
-def dqn(n_episodes=1000, max_t=1000, eps_start=1.0, eps_end=0.00, eps_decay=0.995):
+def dqn(n_episodes=500, max_t=1000, eps_start=1.0, eps_end=0.00, eps_decay=0.995):
     """Deep Q-Learning.
 
     Params

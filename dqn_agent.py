@@ -9,11 +9,11 @@ import torch
 import torch.nn.functional as F
 import torch.optim as optim
 
-BUFFER_SIZE = int(1e4)  # replay buffer size
+BUFFER_SIZE = int(1e5)  # replay buffer size
 BATCH_SIZE = 32         # minibatch size
 GAMMA = 0.99            # discount factor
-TAU = 1e-3              # for soft update of target parameters
-LR = 5e-5               # learning rate
+TAU = 1e-1              # for soft update of target parameters
+LR = 2e-5               # learning rate
 UPDATE_EVERY = 4        # how often to update the network
 
 device = torch.device("cuda:0")
@@ -94,19 +94,19 @@ class Agent():
 
 
         # Get max predicted Q values (for next states) from target model
-        best_actions = self.qnetwork_local(next_states).detach().argmax(1)
-        best_actions = best_actions.unsqueeze(-1)
-        Q_targets_next = self.qnetwork_target(next_states).detach().gather(1, best_actions)
+        Q_targets_next = self.qnetwork_target(next_states).detach().max(1)[0].unsqueeze(1)
         # Compute Q targets for current states
         Q_targets = rewards + (gamma * Q_targets_next * (1 - dones))
-        updated_priorities = torch.abs(Q_targets)
-        self.memory.update_priorities(indices, updated_priorities)
 
         # Get expected Q values from local model
         Q_expected = self.qnetwork_local(states).gather(1, actions)
 
+        updated_priorities = torch.abs(Q_targets-Q_expected.detach())
+        self.memory.update_priorities(indices, updated_priorities)
+
         # Compute loss
         loss = F.mse_loss(weights*Q_expected, weights*Q_targets)
+
         # Minimize the loss
         self.optimizer.zero_grad()
         loss.backward()
@@ -132,7 +132,7 @@ class Agent():
 class ReplayBuffer:
     """Fixed-size buffer to store experience tuples."""
 
-    def __init__(self, action_size, buffer_size, batch_size, seed, alpha = 0.9):
+    def __init__(self, action_size, buffer_size, batch_size, seed):
         """Initialize a ReplayBuffer object.
 
         Params
@@ -148,7 +148,6 @@ class ReplayBuffer:
         self.batch_size = batch_size
         self.experience = namedtuple("Experience", field_names=["state", "action", "reward", "next_state", "done"])
         self.seed = random.seed(seed)
-        self.alpha = alpha
         self.max_priority = 1.0
         self.max_priority_current = False
         self.priorities = deque(maxlen=self.buffer_size)
@@ -169,6 +168,7 @@ class ReplayBuffer:
         prio_alpha = np.power(self.priorities, alpha)
         prob = np.asarray(prio_alpha)/np.sum(prio_alpha)
         indices = np.random.choice(range(0, len(self.priorities)), size=self.batch_size, p=prob)
+
 
         assert(len(self.priorities) == len(self.memory))
         assert(len(indices) == self.batch_size)
