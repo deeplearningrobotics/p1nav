@@ -4,6 +4,7 @@ import numpy as np
 from collections import deque
 import matplotlib.pyplot as plt
 from tensorboardX import SummaryWriter
+import os
 
 device = torch.device("cuda:0")
 print(torch.cuda.is_available())
@@ -19,7 +20,7 @@ from dqn_agent import Agent
 agent = Agent(state_size=37, action_size=4, seed=0)
 writer = SummaryWriter()
 
-def dqn(n_episodes=500, max_t=1000, eps_start=1.0, eps_end=0.00, eps_decay=0.995):
+def dqn(n_episodes=1000, max_t=1000, eps_start=1.0, eps_end=0.00, eps_decay=0.995):
     """Deep Q-Learning.
 
     Params
@@ -57,7 +58,7 @@ def dqn(n_episodes=500, max_t=1000, eps_start=1.0, eps_end=0.00, eps_decay=0.995
         writer.add_scalar('eps', eps, i_episode)
         if i_episode % 100 == 0:
             print('\rEpisode {}\tAverage Score: {:.2f}'.format(i_episode, np.mean(scores_window)))
-            torch.save(agent.qnetwork_local.state_dict(), str(np.mean(scores_window))+'.pth')
+            torch.save(agent.qnetwork_local.state_dict(), os.path.join("runs", str(np.mean(scores_window))+'.pth'))
     return scores
 
 

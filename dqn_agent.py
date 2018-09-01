@@ -10,7 +10,7 @@ import torch.nn.functional as F
 import torch.optim as optim
 
 BUFFER_SIZE = int(1e4)  # replay buffer size
-BATCH_SIZE = 4         # minibatch size
+BATCH_SIZE = 32         # minibatch size
 GAMMA = 0.99            # discount factor
 TAU = 1e-3              # for soft update of target parameters
 LR = 5e-5               # learning rate
@@ -87,22 +87,18 @@ class Agent():
         indices, states, actions, rewards, next_states, dones, prob_samples = experiences
 
         beta = 0.4
-        weights = torch.pow(len(self.memory)*prob_samples, beta)
+        weights = torch.pow(len(self.memory)*prob_samples, -beta)
         max_weight = torch.max(weights)
         weights = weights/max_weight
-        weights = weights.unsqueeze(-1)
+        weights = weights.unsqueeze(-1).detach()
 
-        #print(weights)
 
         # Get max predicted Q values (for next states) from target model
         best_actions = self.qnetwork_local(next_states).detach().argmax(1)
         best_actions = best_actions.unsqueeze(-1)
         Q_targets_next = self.qnetwork_target(next_states).detach().gather(1, best_actions)
         # Compute Q targets for current states
-        Q_targets = weights*(rewards + (gamma * Q_targets_next * (1 - dones)))
-
-        #print(weights)
-
+        Q_targets = rewards + (gamma * Q_targets_next * (1 - dones))
         updated_priorities = torch.abs(Q_targets)
         self.memory.update_priorities(indices, updated_priorities)
 
@@ -110,7 +106,7 @@ class Agent():
         Q_expected = self.qnetwork_local(states).gather(1, actions)
 
         # Compute loss
-        loss = F.mse_loss(Q_expected, Q_targets)
+        loss = F.mse_loss(weights*Q_expected, weights*Q_targets)
         # Minimize the loss
         self.optimizer.zero_grad()
         loss.backward()
